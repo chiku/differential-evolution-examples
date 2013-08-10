@@ -6,9 +6,6 @@
 #include <cstdlib>
 #include <ctime>
 
-#ifndef __DE_H__
-#define __DE_H__
-
 using namespace std;
 
 inline int randomBetween(int a, int b) // [a, b)
@@ -30,7 +27,7 @@ class DE
 		double *fitness;
 		double avg_fitness, best_fitness;
 		int best_fitness_loc;
-		
+
 		double MIN_X, MAX_X, MIN_Y, MAX_Y; // constraints
 		int POPULATION;  // DE parameter
 		double CR_MIN, CR_MAX, F_MIN, F_MAX;	 // DE parameters
@@ -39,7 +36,7 @@ class DE
 	protected:
 		void getData();
 		void findFitness();
-		void findFitnessLast();		
+		void findFitnessLast();
 
 	public:
 		DE();
@@ -67,7 +64,7 @@ DE::DE()
 	{
 		xvector[i] = randomBetween(MIN_X, MAX_X);
 		yvector[i] = randomBetween(MIN_Y, MAX_Y);
-	}		
+	}
 }
 
 
@@ -90,10 +87,10 @@ void DE::findFitness()
 		double x=xvector[i], y=yvector[i];
 		fitness[i] = ( 4.0 - 2.1*x*x + x*x*x*x/3.0 )*x*x + x*y + ( -4.0 + 4*y*y)*y*y;
 	}
-	
+
 	best_fitness = fitness[0];
 	best_fitness_loc = 0;
-	avg_fitness = fitness[0]; 
+	avg_fitness = fitness[0];
 	for (i=1; i<POPULATION; i++)
 	{
 		if (fitness[i] < fitness[best_fitness_loc])
@@ -105,8 +102,8 @@ void DE::findFitness()
 	}
 	avg_fitness /= POPULATION;
 }
-	
-	
+
+
 // fitness of the last member which is actually vtrial
 inline void DE::findFitnessLast()
 {
@@ -130,7 +127,7 @@ void DE::evolution()
 		GENERATION++;
 
 		cout <<"Gen.: " <<GENERATION <<"\tBest fit.: " <<best_fitness
-			<<"\tAvg. fit.: " <<avg_fitness << "\tbest (x,y) = " <<xvector[best_fitness_loc] 
+			<<"\tAvg. fit.: " <<avg_fitness << "\tbest (x,y) = " <<xvector[best_fitness_loc]
 			<<"\t" << yvector[best_fitness_loc] <<endl;
 		int r1 = randomBetween(0, POPULATION);
 		int r2 = randomBetween(0, POPULATION);
@@ -166,8 +163,6 @@ void DE::evolution()
 		}
 	}
 }
-
-#endif
 
 int main()
 {

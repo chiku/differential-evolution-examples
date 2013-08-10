@@ -6,9 +6,6 @@
 #include <cstdlib>
 #include <ctime>
 
-#ifndef __DE_H__
-#define __DE_H__
-
 using namespace std;
 
 inline int randomBetween(int a, int b) // [a, b)
@@ -31,7 +28,7 @@ class DE
 		double *g1, *g2, *g3, *g4;
 		double avg_fitness, best_fitness;
 		int best_fitness_loc;
-		
+
 		double MIN_X1, MAX_X1, MIN_X2, MAX_X2, MIN_X3, MAX_X3; // constraints
 		int POPULATION;  // DE parameter
 		double CR_MIN, CR_MAX, F_MIN, F_MAX;	 // DE parameters
@@ -40,7 +37,7 @@ class DE
 	protected:
 		void getData();
 		void findFitness();
-		void findFitnessLast();		
+		void findFitnessLast();
 
 	public:
 		DE();
@@ -62,7 +59,7 @@ class DE
 DE::DE()
 {
 	getData();
-	
+
 	x1vector = new double[POPULATION+1];
 	x2vector = new double[POPULATION+1];
 	x3vector = new double[POPULATION+1];
@@ -71,13 +68,13 @@ DE::DE()
 	g2 = new double[POPULATION+1];
 	g3 = new double[POPULATION+1];
 	g4 = new double[POPULATION+1];
-	
+
 	for (int i=0; i<POPULATION; i++)
 	{
 		x1vector[i] = randomBetween(MIN_X1, MAX_X1);
 		x2vector[i] = randomBetween(MIN_X2, MAX_X2);
 		x3vector[i] = randomBetween(MIN_X3, MAX_X3);
-	}		
+	}
 }
 
 
@@ -100,7 +97,7 @@ void DE::findFitness()
 	{
 		double x1=x1vector[i], x2=x2vector[i], x3=x3vector[i];
 		fitness[i] = ( x3 + 2.0 )*x2*x1*x1;
-		
+
 		// calculate constriants
 		g1[i] = 1.0 - ( x2*x2*x2*x3 ) / ( 71785.0*x1*x1*x1*x1 );
 		g2[i] = ( 4.0*x2*x2 - x1*x2 ) / ( 12566.0 * (x2*x1*x1*x1 - x1*x1*x1*x1 ) ) + 1.0 / ( 5108.0 * x1*x1 ) - 1.0;
@@ -112,11 +109,11 @@ void DE::findFitness()
 		if (g2[i]>0) fitness[i] += 1000;
 		if (g3[i]>0) fitness[i] += 1000;
 		if (g4[i]>0) fitness[i] += 1000;
-	} 
-	
-	best_fitness = fitness[0]; 
+	}
+
+	best_fitness = fitness[0];
 	best_fitness_loc = 0;
-	avg_fitness = fitness[0]; 
+	avg_fitness = fitness[0];
 
 	for (i=1; i<POPULATION; i++)
 	{
@@ -129,8 +126,8 @@ void DE::findFitness()
 	}
 	avg_fitness /= POPULATION;
 }
-	
-	
+
+
 // fitness of the last member which is actually vtrial
 inline void DE::findFitnessLast()
 {
@@ -154,7 +151,7 @@ void DE::evolution()
 	int GENERATION = 0;
 	double temp_x1, temp_x2, temp_x3;
 	double F, CR;
-	
+
 	avg_fitness = 1e50; best_fitness = 1e49;
 	while (avg_fitness - best_fitness >= 0.00000001 && GENERATION < 100000)
 	{
@@ -162,7 +159,7 @@ void DE::evolution()
 		GENERATION++;
 
 		cout <<"Gen.: " <<GENERATION <<"\tBest fit.: " <<best_fitness
-			<<"\tAvg. fit.: " <<avg_fitness << "\t(x1,x2,x3) = " <<x1vector[best_fitness_loc] 
+			<<"\tAvg. fit.: " <<avg_fitness << "\t(x1,x2,x3) = " <<x1vector[best_fitness_loc]
 			<<"\t" <<x2vector[best_fitness_loc] <<"\t" <<x3vector[best_fitness_loc] <<endl;
 		int r1 = randomBetween(0, POPULATION);
 		int r2 = randomBetween(0, POPULATION);
@@ -170,7 +167,7 @@ void DE::evolution()
 		int r4 = randomBetween(0, POPULATION);
 
 		// Differential mutation
-		F = randomBetween(F_MIN, F_MAX);	
+		F = randomBetween(F_MIN, F_MAX);
 		temp_x1 = x1vector[best_fitness_loc] + F * (x1vector[r1] - x1vector[r2]);
 		temp_x2 = x2vector[best_fitness_loc] + F * (x2vector[r1] - x2vector[r2]);
 		temp_x3 = x3vector[best_fitness_loc] + F * (x3vector[r1] - x3vector[r2]);
@@ -192,7 +189,7 @@ void DE::evolution()
 			x2vector[POPULATION] = x2vector[r3];
 			x3vector[POPULATION] = x3vector[r3];
 		}
-		
+
 		// Recombination
 		findFitnessLast();
 		if (fitness[POPULATION] < fitness[r4])
@@ -200,11 +197,9 @@ void DE::evolution()
 			x1vector[r4] = x1vector[POPULATION];
 			x2vector[r4] = x2vector[POPULATION];
 			x3vector[r4] = x3vector[POPULATION];
-		}			
+		}
 	}
 }
-
-#endif
 
 int main()
 {
