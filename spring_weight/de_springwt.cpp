@@ -1,12 +1,11 @@
-// Optimization of weight of spring using DE
+// Optimize the weight of a spring using differential evolution
 
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
-
-using namespace std;
 
 inline int randomBetween(int a, int b) // [a, b)
 {
@@ -35,16 +34,17 @@ class DE
 		double PENALTY;  // constant penalty
 
 	protected:
-		void getData();
+		void getData(const char *file_name);
 		void findFitness();
 		void findFitnessLast();
 
 	public:
-		DE();
+		DE(const char *file_name);
+		~DE();
 		void evolution();
 		void printResult()
 		{
-			cout <<"\n\nRESULTS" <<endl <<"\n---------------------------"
+			std::cout <<"\n\nRESULTS" <<std::endl <<"\n---------------------------"
 				<<"\nAverage fitness: " <<avg_fitness <<"\nBest fitness: " <<best_fitness
 				<<"\n\nSolution" <<"\n\tx1 = " <<x1vector[best_fitness_loc]
 				<<"\n\tx2 = " <<x2vector[best_fitness_loc]
@@ -56,9 +56,9 @@ class DE
 };
 
 // Constructor
-DE::DE()
+DE::DE(const char *file_name)
 {
-	getData();
+	getData(file_name);
 
 	x1vector = new double[POPULATION+1];
 	x2vector = new double[POPULATION+1];
@@ -77,11 +77,26 @@ DE::DE()
 	}
 }
 
+DE::~DE()
+{
+	delete []fitness;
+	delete []x3vector;
+	delete []x2vector;
+	delete []x1vector;
+	delete []g4;
+	delete []g3;
+	delete []g2;
+	delete []g1;
+}
 
 // Get the DE parameters
-void DE::getData()
+void DE::getData(const char *file_name)
 {
-	ifstream File("de_springwt.dat");
+	std::ifstream File(file_name);
+	if (File.fail()) {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+	}
+
 	File >>MIN_X1 >>MIN_X2 >>MIN_X3;
 	File >>MAX_X1 >>MAX_X2 >>MAX_X3;
 	File >>POPULATION >>F_MIN >> F_MAX >>CR_MIN >>CR_MAX;
@@ -158,9 +173,9 @@ void DE::evolution()
 		findFitness();
 		GENERATION++;
 
-		cout <<"Gen.: " <<GENERATION <<"\tBest fit.: " <<best_fitness
+		std::cout <<"Gen.: " <<GENERATION <<"\tBest fit.: " <<best_fitness
 			<<"\tAvg. fit.: " <<avg_fitness << "\t(x1,x2,x3) = " <<x1vector[best_fitness_loc]
-			<<"\t" <<x2vector[best_fitness_loc] <<"\t" <<x3vector[best_fitness_loc] <<endl;
+			<<"\t" <<x2vector[best_fitness_loc] <<"\t" <<x3vector[best_fitness_loc] <<std::endl;
 		int r1 = randomBetween(0, POPULATION);
 		int r2 = randomBetween(0, POPULATION);
 		int r3 = randomBetween(0, POPULATION);
@@ -204,8 +219,8 @@ void DE::evolution()
 int main()
 {
 	srand(time(0));
-	cout.precision(8);
-	DE de;
+	std::cout.precision(8);
+	DE de("spring_weight/de_springwt.dat");
 	de.evolution();
 	de.printResult();
 }

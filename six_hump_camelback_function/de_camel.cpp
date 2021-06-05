@@ -1,12 +1,11 @@
-// Optimization of six camel humpback using DE
+// Solve of six-hump camel-back function using differential evolution
 
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
-
-using namespace std;
 
 inline int randomBetween(int a, int b) // [a, b)
 {
@@ -34,16 +33,17 @@ class DE
 		double PENALTY;  // constant penalty
 
 	protected:
-		void getData();
+		void getData(const char *file_name);
 		void findFitness();
 		void findFitnessLast();
 
 	public:
-		DE();
+		DE(const char *file_name);
+		~DE();
 		void evolution();
 		void printResult()
 		{
-			cout <<"\n\nRESULTS" <<endl <<"\n---------------------------"
+			std::cout <<"\n\nRESULTS" <<std::endl <<"\n---------------------------"
 				<<"\nAverage fitness: " <<avg_fitness <<"\nBest fitness: " <<best_fitness
 				<<"\n\nSolution" <<"\n\tx = " <<xvector[best_fitness_loc]
 				<<"\n\ty = " <<yvector[best_fitness_loc]
@@ -52,9 +52,9 @@ class DE
 };
 
 // Constructor
-DE::DE()
+DE::DE(const char *file_name)
 {
-	getData();
+	getData(file_name);
 
 	xvector = new double[POPULATION+1];
 	yvector = new double[POPULATION+1];
@@ -67,11 +67,22 @@ DE::DE()
 	}
 }
 
+DE::~DE()
+{
+	delete []fitness;
+	delete []yvector;
+	delete []xvector;
+}
+
 
 // Get the DE parameters
-void DE::getData()
+void DE::getData(const char *file_name)
 {
-	ifstream File("de_camel.dat");
+	std::ifstream File(file_name);
+	if (File.fail()) {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+	}
+
 	File >>MIN_X >>MAX_X >>MIN_Y >>MAX_Y;
 	File >>POPULATION >>F_MIN >>F_MAX >>CR_MIN >>CR_MAX;
 	File.close();
@@ -126,9 +137,9 @@ void DE::evolution()
 		findFitness();
 		GENERATION++;
 
-		cout <<"Gen.: " <<GENERATION <<"\tBest fit.: " <<best_fitness
+		std::cout <<"Gen.: " <<GENERATION <<"\tBest fit.: " <<best_fitness
 			<<"\tAvg. fit.: " <<avg_fitness << "\tbest (x,y) = " <<xvector[best_fitness_loc]
-			<<"\t" << yvector[best_fitness_loc] <<endl;
+			<<"\t" << yvector[best_fitness_loc] <<std::endl;
 		int r1 = randomBetween(0, POPULATION);
 		int r2 = randomBetween(0, POPULATION);
 		int r3 = randomBetween(0, POPULATION);
@@ -167,8 +178,8 @@ void DE::evolution()
 int main()
 {
 	srand(time(0));
-	cout.precision(8);
-	DE de;
+	std::cout.precision(8);
+	DE de("six_hump_camelback_function/de_camel.dat");
 	de.evolution();
 	de.printResult();
 }
